@@ -8,8 +8,7 @@ from pathlib import Path
 
 def process_posts(posts_xml_path, output_json_path, preprocessor):
 
-    questions = []
-    answers = []
+    questions = {}
 
     with open(posts_xml_path, encoding="utf8") as post_xml:
         for line in post_xml:
@@ -31,28 +30,21 @@ def process_posts(posts_xml_path, output_json_path, preprocessor):
                     post['answerCount'] = post_dict['row']['@AnswerCount'] if '@AnswerCount' in post_dict['row'] else ""
                     post['favoriteCount'] = post_dict['row']['@FavoriteCount'] if '@FavoriteCount' in post_dict['row'] else ""
                     post['viewCount'] = post_dict['row']['@ViewCount'] if '@ViewCount' in post_dict['row'] else ""
-                    questions.append(post)
+                    post['answers'] = []
+                    questions[post['postId']] = post
                 elif post_dict['row']['@PostTypeId'] == "2":  # post is an answer
                     post['parentId'] = post_dict['row']['@ParentId'] if '@ParentId' in post_dict['row'] else ""
-                    answers.append(post)
+                    questions.get(post['parentId'])['answers'].append(post)
+                    
                 print(f"{post['postId']}")
-
-    # Create a list of answers for each question
-    for question in questions:
-        print(f"Answers left: {len(answers)}. Getting answers for question Id {question['postId']}...")
-        question['answers'] = []
-        for answer in answers[:]:
-            if question['postId'] == answer['parentId']:
-                question['answers'].append(answer)
-                answers.remove(answer)
 
     # Write the list of questions with answers to the JSON output file
     with open(output_json_path, "w") as output_file:
         print("Generating questions and answers JSON file...")
         output_file.write("[\n")
-        for question in questions[:]:
+        for question in list(questions.values()):
             json.dump(question, output_file)
-            questions.remove(question)
+            questions.pop(question['postId'])
             if len(questions) > 0:
                 output_file.write(",\n")
         output_file.write("\n]")
