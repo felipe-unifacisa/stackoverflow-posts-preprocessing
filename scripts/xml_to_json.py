@@ -8,7 +8,7 @@ from timeit import default_timer as timer
 # containing a list of all the questions that match the given filter tatgs and a list of answers as a new property for each question. 
 # Each question and answer's title (if available) and body go through a preprocessor passed as a parameter to the function.
 
-def process_posts(posts_xml_path, output_json_path, preprocessor, year = 2008, filtertag1 = None, filtertag2 = None):
+def process_posts(posts_xml_path, output_json_path, preprocessor, year = 2008):
     start = timer()
     interval = timer()
     questions = {}
@@ -29,7 +29,7 @@ def process_posts(posts_xml_path, output_json_path, preprocessor, year = 2008, f
                     'commentCount': post_dict['row']['@CommentCount'] if '@CommentCount' in post_dict['row'] else ""
                 }
                 # post is a question and has one of the chosen technology tags in its tag list
-                if post_dict['row']['@PostTypeId'] == '1' and (f"<{filtertag1}>" in post_dict['row']['@Tags'] or f"<{filtertag2}>" in post_dict['row']['@Tags']):
+                if post_dict['row']['@PostTypeId'] == '1':
                     post['title'] = preprocessor(post_dict['row']['@Title']) if '@Title' in post_dict['row'] else ""
                     post['body'] = preprocessor(post_dict['row']['@Body'])
                     post['tags'] = post_dict['row']['@Tags'] if '@Tags' in post_dict['row'] else ""

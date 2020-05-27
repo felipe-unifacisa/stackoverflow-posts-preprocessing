@@ -3,6 +3,7 @@ import nltk
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer 
 from nltk.corpus import wordnet
+from nltk.corpus import stopwords
 
 def preprocess_text(text):
     # Remove leading and trailing whitespace
@@ -24,8 +25,11 @@ def preprocess_text(text):
     tokenizer = RegexpTokenizer(r"<(?:code||b||strong||i)>(?:.+?)[^<]*<\/(?:code||b||strong||i)>||(?:(?:\w*(?:'||-)\w*))")
     tokens = [token for token in tokenizer.tokenize(text) if token != ""]
 
+    # Remove stop words
+    filtered_tokens = [word for word in tokens if word not in stopwords.words('english')]
+
     # Generate Part-of-Speech tagged tokens from the list of tokens
-    tagged = nltk.pos_tag(tokens)
+    tagged = nltk.pos_tag(filtered_tokens)
 
     # Lemmatize the list of tagged tokens
     lemmatizer = WordNetLemmatizer() 
