@@ -1,3 +1,5 @@
+from argparse import ArgumentParser
+from os import path
 import json
 import xmltodict
 from pathlib import Path
@@ -40,7 +42,7 @@ def split_posts(posts_xml_path, output_xml_paths, filtertag1 = None, filtertag2 
                                         posts_2017_xml.write(line)
                                     elif year == '2018':
                                         posts_2018_xml.write(line)
-                                    
+
                                 processed_lines = processed_lines + 1
 
                                 if timer() - interval > 300:
@@ -48,3 +50,45 @@ def split_posts(posts_xml_path, output_xml_paths, filtertag1 = None, filtertag2 
                                     interval = timer()
 
     print(f"File splitting by year finished in {round(timer() - start, 2)} seconds.")
+
+if __name__ == "__main__":
+    parser = ArgumentParser("""
+
+This script filters the Stackoverflow Posts.xml file, generating output files
+for the years 2015-2018 that contain posts related to two tags that are passed
+as aguments.
+
+It will output the files <out_dir>/<first_tag>_<second_tag>_<year>.xml, where
+<year> is one of the values 2015-2018, <out_dir> is the output directory passed
+as an argument, and <first_tag> and <second_tag> are the tags used for filtering
+which are also passed as arguments.
+
+python post_splitter.py
+""")
+    parser.add_argument(
+        "--posts_xml_path", default="./Posts.xml", type=str,
+        help="Path to the Posts.xml file containing the Stackoverflow database file."
+    )
+    parser.add_argument(
+        "--first_tag", default=None, type=str,
+        help="The first tag to be filtered. (Optional)"
+    )
+    parser.add_argument(
+        "--second_tag", default=None, type=str,
+        help="The second tag to be filtered. (Optional)"
+    )
+    parser.add_argument(
+        "--out_dir", default="./", type=str,
+        help="The output directory. Note: It must already exist."
+    )
+
+    args = parser.parse_args()
+    files_root = args.out_dir
+    posts_path = args.posts_xml_path
+    tag_1 = args.first_tag
+    tag_2 = args.second_tag
+    output_xml_paths = {
+        year: path.join(files_root, f"{tag_1}_{tag_2}_{year}.xml") \
+            for year in list(map(str, range(2015, 2019)))
+    }
+    split_posts(posts_path, output_xml_paths, tag_1, tag_2)
