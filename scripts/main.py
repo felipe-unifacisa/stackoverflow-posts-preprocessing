@@ -2,8 +2,6 @@ from xml_to_json import process_posts
 from preprocessing import preprocess_text
 from post_stats import generate_stats
 from post_freqdist import generate_freqdist
-from post_splitter import split_posts
-from post_splitter_nineteen import split_posts_nineteen
 from post_sentiment_analysis import sentiment_analysis
 import json
 import multiprocessing
